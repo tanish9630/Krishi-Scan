@@ -18,125 +18,65 @@ st.set_page_config(
 # ─── Custom CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-  /* Global */
-  html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+  /* Clean up the default Streamlit UI a bit without heavy themes */
+  .main .block-container {
+    padding-top: 2rem;
   }
-
-  /* Dark background */
-  .stApp {
-    background: linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #020617 100%);
-    color: #f8fafc;
-  }
-
-  /* Header Navbar */
-  .navbar {
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(74, 222, 128, 0.2);
-    padding: 1.5rem 2rem;
-    margin: -4rem -4rem 2rem -4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .navbar h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #4ade80, #38bdf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .navbar span { color: #94a3b8; font-weight: 500; }
-
-  /* Premium Cards */
-  .premium-card {
-    background: rgba(30, 41, 59, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 20px;
-    padding: 1.8rem;
-    backdrop-filter: blur(16px);
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-    margin-bottom: 1.5rem;
-  }
-
-  /* Diagnosis Header Hero */
-  .diagnosis-hero {
-    background: linear-gradient(135deg, rgba(20, 83, 45, 0.8), rgba(2, 44, 34, 0.8));
-    border: 1px solid #4ade80;
-    border-radius: 24px;
-    padding: 2.5rem;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .diagnosis-hero h2 {
-    font-size: 3.5rem;
-    font-weight: 800;
-    color: #4ade80;
-    margin: 0;
-    line-height: 1.1;
-  }
-  .diagnosis-hero.warning {
-    background: linear-gradient(135deg, rgba(127, 29, 29, 0.8), rgba(69, 10, 10, 0.8));
-    border-color: #f87171;
-  }
-  .diagnosis-hero.warning h2 { color: #f87171; }
-  .diagnosis-icon { font-size: 5rem; }
-
-  /* Upload area override */
-  [data-testid="stFileUploader"] {
-    background: rgba(15, 23, 42, 0.5);
-    border: 2px dashed rgba(74, 222, 128, 0.3);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: border-color 0.3s ease;
-  }
-  [data-testid="stFileUploader"]:hover { border-color: #4ade80; }
-
+  
   /* Primary Button */
   .stButton > button {
-    background: linear-gradient(135deg, #16a34a, #059669) !important;
+    background-color: #16a34a !important;
     color: white !important;
     border: none !important;
-    border-radius: 12px !important;
-    padding: 1rem 2rem !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    width: 100% !important;
-    transition: transform 0.2s, box-shadow 0.2s !important;
-    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4) !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 600 !important;
   }
   .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(22, 163, 74, 0.6) !important;
+    background-color: #15803d !important;
   }
 
-  /* Tabs */
-  .stTabs [data-baseweb="tab"] {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-radius: 12px 12px 0 0 !important;
-    color: #cbd5e1 !important;
-    font-weight: 600 !important;
-    padding: 1rem 2rem !important;
-    border: 1px solid rgba(148, 163, 184, 0.1) !important;
-    border-bottom: none !important;
+  /* Simple Header */
+  .navbar-container {
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 2rem;
   }
-  .stTabs [aria-selected="true"] {
-    background: rgba(20, 83, 45, 0.6) !important;
-    color: #4ade80 !important;
-    border-color: rgba(74, 222, 128, 0.3) !important;
+  
+  .navbar-container h1 {
+    color: #16a34a;
+    margin-bottom: 0.2rem;
   }
 
-  /* Metrics styling inside cards */
-  .metric-label { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 600; }
-  .metric-value { font-size: 2.2rem; font-weight: 800; color: #f8fafc; }
-  .metric-sub { font-size: 1rem; color: #cbd5e1; }
-
+  /* Simple Cards for Results */
+  .result-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    color: #1e293b;
+  }
+  
+  .result-card h3 {
+    margin-top: 0;
+    color: #0f172a;
+  }
+  
+  /* Dark mode overrides for cards */
+  @media (prefers-color-scheme: dark) {
+    .result-card {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f8fafc;
+    }
+    .result-card h3 {
+      color: #f1f5f9;
+    }
+    .navbar-container {
+      border-bottom-color: #334155;
+    }
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -247,11 +187,10 @@ def get_weather_icon(description: str) -> str:
 
 # ─── Main App ────────────────────────────────────────────────────────────────
 def main():
-    # Navbar Header
     st.markdown("""
-    <div class="navbar">
+    <div class="navbar-container">
       <h1>🌿 Krishi Scan</h1>
-      <span>AI Disease Detection Dashboard</span>
+      <p style="color: #64748b;">Crop Disease Detection & Trilingual Expert Advice</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -260,7 +199,6 @@ def main():
 
     # ── LEFT PANEL: Controls & Input ──────────────────────────────────────────
     with col_panel:
-        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
         st.markdown("### 📍 Location Context")
         
         lat, lon = get_browser_location()
@@ -268,19 +206,15 @@ def main():
             weather_preview = fetch_weather(lat, lon)
             if weather_preview:
                 city = weather_preview.get('city', 'Unknown')
-                st.markdown(f"**GPS Locked:** {city}")
-                st.success("Geolocation active for localized advice.")
+                st.success(f"**GPS Locked:** {city}")
             else:
                 st.success(f"GPS locked: {lat:.3f}, {lon:.3f}")
         else:
-            st.warning("⚠️ Location not available.")
-            st.markdown("<small style='color:#94a3b8;'>Allow browser location for weather-aware AI advice, or enter city manually:</small>", unsafe_allow_html=True)
+            st.warning("Location not available. Enter city manually:")
             city_fallback = st.text_input("", placeholder="e.g., Nashik, Gujarat...")
             lat, lon = None, None
 
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+        st.markdown("---")
         st.markdown("### 📸 Crop Image")
         uploaded_file = st.file_uploader(
             "Upload leaf photo for AI analysis",
@@ -294,7 +228,6 @@ def main():
 
         st.markdown("<br>", unsafe_allow_html=True)
         scan_btn = st.button("🔬 Analyze Crop Data", disabled=(uploaded_file is None))
-        st.markdown("</div>", unsafe_allow_html=True)
 
     # ── RIGHT PANEL: Results Dashboard ────────────────────────────────────────
     with col_dashboard:
@@ -322,54 +255,31 @@ def main():
             is_healthy = "healthy" in disease.lower()
             weather = result.get("weather_context")
             
-            hero_class = "diagnosis-hero" if is_healthy else "diagnosis-hero warning"
             icon = "✅" if is_healthy else "⚠️"
 
-            # 1. Top Section: Huge Diagnosis Hero
+            # 1. Top Section: Diagnosis
             st.markdown(f"""
-            <div class="{hero_class}">
-              <div>
-                <div class="metric-label" style="color: rgba(255,255,255,0.7);">Primary AI Diagnosis</div>
-                <h2>{disease}</h2>
-              </div>
-              <div class="diagnosis-icon">{icon}</div>
+            <div class="result-card">
+              <h3>{icon} AI Diagnosis: {disease}</h3>
+              <p style="margin: 0; color: #64748b;">Confidence Score: <b>{confidence:.1f}%</b></p>
             </div>
             """, unsafe_allow_html=True)
+            st.progress(min(confidence / 100, 1.0))
 
-            # 2. Middle Grid: Confidence (L) + Weather (R)
-            mid_l, mid_r = st.columns(2)
-            
-            with mid_l:
-                st.markdown("<div class='premium-card' style='height:140px;'>", unsafe_allow_html=True)
-                st.markdown("<div class='metric-label'>Model Confidence</div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='metric-value'>{confidence:.1f}%</div>", unsafe_allow_html=True)
-                st.progress(min(confidence / 100, 1.0))
-                st.markdown("</div>", unsafe_allow_html=True)
-
-            with mid_r:
-                st.markdown("<div class='premium-card' style='height:140px;'>", unsafe_allow_html=True)
-                st.markdown("<div class='metric-label'>Local Conditions</div>", unsafe_allow_html=True)
-                if weather:
-                    w_icon = get_weather_icon(weather.get("description", ""))
-                    st.markdown(f"""
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                      <div>
-                        <div class='metric-value'>{weather.get("temperature")}°C</div>
-                        <div class='metric-sub'>{weather.get("humidity")}% Humidity • {weather.get("city")}</div>
-                      </div>
-                      <div style="font-size:3rem;">{w_icon}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown("<div class='metric-value'>—</div>", unsafe_allow_html=True)
-                    st.markdown("<div class='metric-sub'>Weather data unavailable</div>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+            # 2. Middle Grid: Weather
+            if weather:
+                w_icon = get_weather_icon(weather.get("description", ""))
+                st.markdown(f"""
+                <div class="result-card">
+                  <h4 style="margin-top:0;">{w_icon} Local Weather ({weather.get("city")})</h4>
+                  <p style="margin:0;">{weather.get("temperature")}°C | {weather.get("humidity")}% Humidity | {weather.get("description", "").title()}</p>
+                </div>
+                """, unsafe_allow_html=True)
 
             # 3. Bottom Section: Trilingual Advice Board
             advice_text = result.get("ai_advice", "")
             if advice_text:
-                st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
-                st.markdown("<div class='metric-label' style='margin-bottom:1rem;'>Expert Agronomist Report</div>", unsafe_allow_html=True)
+                st.markdown("### 📋 Expert Agronomist Report")
                 
                 lang_sections = parse_advice(advice_text)
                 tab_en, tab_hi, tab_gu = st.tabs(["🇬🇧 English", "🇮🇳 Hindi", "🏛️ Gujarati"])
@@ -380,8 +290,6 @@ def main():
                     st.markdown(lang_sections.get("Hindi", "Not available."))
                 with tab_gu:
                     st.markdown(lang_sections.get("Gujarati", "Not available."))
-                
-                st.markdown("</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
