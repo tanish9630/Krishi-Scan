@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+.env
+.venv
+env/
+venv/
+*.pyc
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Models / large files
+*.h5
+*.pkl
+*.pt
+*.pth
+*.bin
+*.onnx
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+implementation_plan.md.resolved
