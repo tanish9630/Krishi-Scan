@@ -220,17 +220,23 @@ def parse_advice(advice_text: str) -> dict:
 
     for line in advice_text.splitlines():
         stripped = line.strip()
-        if stripped.startswith("## English") or stripped == "## English":
+        lower = stripped.lower()
+        
+        is_english_header = lower.startswith("##") and "english" in lower
+        is_hindi_header = lower.startswith("##") and ("hindi" in lower or "हिंदी" in lower)
+        is_gujarati_header = lower.startswith("##") and ("gujarati" in lower or "ગુજરાત" in lower)
+
+        if is_english_header:
             if current_lang and buffer:
                 sections[current_lang] = "\n".join(buffer).strip()
             current_lang = "English"
             buffer = []
-        elif stripped.startswith("## Hindi") or "हिंदी" in stripped or stripped == "## Hindi":
+        elif is_hindi_header:
             if current_lang and buffer:
                 sections[current_lang] = "\n".join(buffer).strip()
             current_lang = "Hindi"
             buffer = []
-        elif stripped.startswith("## Gujarati") or "ગુજરાત" in stripped or stripped == "## Gujarati":
+        elif is_gujarati_header:
             if current_lang and buffer:
                 sections[current_lang] = "\n".join(buffer).strip()
             current_lang = "Gujarati"
@@ -241,7 +247,7 @@ def parse_advice(advice_text: str) -> dict:
     if current_lang and buffer:
         sections[current_lang] = "\n".join(buffer).strip()
 
-    # If parsing fails, put everything in English
+    # If parsing fails or only returns partial, keep everything in English as fallback
     if not any(sections.values()):
         sections["English"] = advice_text
 
