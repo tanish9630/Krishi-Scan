@@ -2,9 +2,10 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies required for OpenCV/PIL if needed
+# Install system dependencies required for OpenCV/PIL if needed, and curl for healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
