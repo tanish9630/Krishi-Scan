@@ -4,8 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.29-red.svg)](https://streamlit.io)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://docker.com)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev)
 
 ---
 
@@ -35,13 +34,41 @@ Farmer → Streamlit UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
 
 | Layer        | Technology |
 |--------------|------------|
-| Frontend     | Streamlit (dark-mode dashboard) |
+| Frontend     | React + Vite (dark-mode dashboard) |
 | Backend      | FastAPI (async) |
 | Vision Model | `linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification` |
 | AI Brain     | Google Gemini `gemini-1.5-flash` |
 | Weather      | OpenWeatherMap Current Weather API |
-| Location     | Browser Geolocation API (auto lat/lon) |
-| Deploy       | Docker + Docker Compose |
+| Location     | Browser Geolocation API / Manual city input |
+
+---
+
+## 🤖 Vision Model Details
+
+> **Model:** [`linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification`](https://huggingface.co/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification)  
+> **Base:** `google/mobilenet_v2_1.0_224` (fine-tuned)  
+> **Framework:** Transformers 4.27.3 · PyTorch 1.13.0  
+> **Downloads (last month):** ~10,954
+
+### 📊 Performance
+| Metric | Value |
+|--------|-------|
+| Accuracy | **95.41%** |
+| Cross Entropy Loss | **0.15** |
+| Dataset | Kaggle — PlantVillage (38 disease classes) |
+
+### ⚙️ Training Hyperparameters
+| Parameter | Value |
+|-----------|-------|
+| Learning Rate | `5e-5` |
+| Batch Size (train/eval) | `256` |
+| Optimizer | Adam (β₁=0.9, β₂=0.999, ε=1e-8) |
+| LR Scheduler | Linear with 20% warmup |
+| Epochs | `6` |
+
+### ⚠️ Intended Use & Limitations
+- ✅ **For:** Identifying common crop diseases and assessing plant health
+- ❌ **Not for:** Replacing expert agronomist diagnosis
 
 ---
 
@@ -61,12 +88,23 @@ cp .env.example .env
 # OPENWEATHER_API_KEY → https://openweathermap.org/api
 ```
 
-### 3. Run with Docker Compose
+### 3. Run Locally
+
+**Backend API**
 ```bash
-docker-compose up --build
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
-- 🌐 **Frontend** → http://localhost:8501
+**Frontend App**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+- 🌐 **Frontend** → http://localhost:5173
 - ⚙️ **Backend API** → http://localhost:8000
 - 📖 **API Docs** → http://localhost:8000/docs
 
@@ -77,9 +115,7 @@ docker-compose up --build
 ```
 Krishi Scan/
 ├── .env.example               ← API key template
-├── docker-compose.yml         ← Docker orchestration
 ├── backend/
-│   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── main.py                ← FastAPI entrypoint
 │   ├── config.py              ← Settings & env vars
@@ -92,9 +128,7 @@ Krishi Scan/
 │       ├── weather_service.py ← OpenWeatherMap integration
 │       └── gemini_service.py  ← Trilingual Gemini advice
 └── frontend/
-    ├── Dockerfile
-    ├── requirements.txt
-    └── app.py                 ← Streamlit dashboard
+    ├── package.json
 ```
 
 ---
