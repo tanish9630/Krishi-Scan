@@ -22,11 +22,18 @@ Krishi Scan helps farmers detect crop diseases instantly using AI:
 ## 🏗️ Architecture
 
 ```
-Farmer → Streamlit UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
-              ↑                           ├→ OpenWeatherMap API
-  Browser Geolocation                    └→ Gemini API → Trilingual Advice
-  (auto lat/lon → city)
+Farmer → React UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
+             ↑                        ├→ OpenWeatherMap API
+  Browser / Manual Location           └→ Gemini API → Trilingual Advice
 ```
+
+### 🗺️ Project Workflow
+
+![Project Workflow](images/workflow%20project.png)
+
+### 🔄 System Workflow
+
+![System Workflow](images/workflow.png)
 
 ---
 
@@ -69,6 +76,10 @@ Farmer → Streamlit UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
 ### ⚠️ Intended Use & Limitations
 - ✅ **For:** Identifying common crop diseases and assessing plant health
 - ❌ **Not for:** Replacing expert agronomist diagnosis
+
+### 🧠 Deep Learning Model Architecture
+
+![Deep Learning Model](images/deep%20learning%20model.jpeg)
 
 ---
 
