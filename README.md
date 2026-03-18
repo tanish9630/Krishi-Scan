@@ -1,30 +1,47 @@
 # 🌿 Krishi Scan
 
-> AI-powered plant disease detection & trilingual expert advice for Indian farmers
+> **AI-powered plant disease detection & trilingual expert advice for Indian farmers**
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![HuggingFace](https://img.shields.io/badge/Model-HuggingFace-orange.svg)](https://huggingface.co/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blueviolet.svg)](https://aistudio.google.com)
 
 ---
 
-## 🎯 What It Does
+## 📖 Overview
 
-Krishi Scan helps farmers detect crop diseases instantly using AI:
+**Krishi Scan** is a full-stack AI application built to empower Indian farmers with instant, accessible plant disease diagnostics. Farmers simply photograph a crop leaf and within seconds receive:
 
-1. 📸 **Upload** a leaf photo via the web app
-2. 🔬 **AI detects** the disease using MobileNetV2 (trained on PlantVillage — 38 disease classes)
-3. 🌤️ **Weather context** is auto-fetched using your GPS location
-4. 💡 **Gemini AI** generates structured treatment advice in **English + Hindi + Gujarati**
+- An AI-identified disease diagnosis (38 disease classes)
+- Real-time weather context from their current location
+- Actionable treatment advice in **English, Hindi, and Gujarati**
+
+The application bridges the gap between advanced AI and rural farming communities, providing recommendations that are grounded in practical, locally available remedies as well as modern chemical prescriptions.
+
+---
+
+## 🎯 How It Works — Step by Step
+
+| Step | Action | Technology |
+|------|--------|------------|
+| 1 | Farmer uploads a leaf photo via the web app | React + Vite |
+| 2 | Image is sent to the backend for inference | FastAPI (async) |
+| 3 | MobileNetV2 classifies the disease | HuggingFace Transformers |
+| 4 | Weather at farmer's GPS location is fetched | OpenWeatherMap API |
+| 5 | Gemini AI generates structured advice in 3 languages | Google Gemini 1.5 Flash |
+| 6 | Diagnosis + weather + advice displayed on dashboard | React dark-mode UI |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-Farmer → React UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
-             ↑                        ├→ OpenWeatherMap API
-  Browser / Manual Location           └→ Gemini API → Trilingual Advice
+Farmer → React UI → FastAPI Backend ──→ MobileNetV2 (HuggingFace)
+             ↑                        ├──→ OpenWeatherMap API
+  Browser GPS / IP Lookup / Manual    └──→ Gemini API → Trilingual Advice
 ```
 
 ### 🗺️ Project Workflow
@@ -39,32 +56,37 @@ Farmer → React UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
 
 ## 🧰 Tech Stack
 
-| Layer        | Technology |
-|--------------|------------|
-| Frontend     | React + Vite (dark-mode dashboard) |
-| Backend      | FastAPI (async) |
-| Vision Model | `linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification` |
-| AI Brain     | Google Gemini `gemini-1.5-flash` |
-| Weather      | OpenWeatherMap Current Weather API |
-| Location     | Browser Geolocation API / Manual city input |
+| Layer        | Technology | Purpose |
+|--------------|------------|---------|
+| Frontend     | React 18 + Vite (dark-mode dashboard) | User interface |
+| Backend      | FastAPI 0.104 (async) | REST API server |
+| Vision Model | `linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification` | Disease classification |
+| AI Brain     | Google Gemini `gemini-flash-latest` | Trilingual advice generation |
+| Weather      | OpenWeatherMap Current Weather API | Environmental context |
+| Location     | Browser Geolocation → IP Lookup (`ipwho.is`) → Manual city | Auto location fallback chain |
+| HTTP Client  | `httpx` (async) | External API requests |
+| Image Processing | `Pillow` + `torchvision` | Image preprocessing |
 
 ---
 
 ## 🤖 Vision Model Details
 
-> **Model:** [`linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification`](https://huggingface.co/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification)  
-> **Base:** `google/mobilenet_v2_1.0_224` (fine-tuned)  
-> **Framework:** Transformers 4.27.3 · PyTorch 1.13.0  
-> **Downloads (last month):** ~10,954
+> **Model:** [`linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification`](https://huggingface.co/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification)
+> **Base Architecture:** `google/mobilenet_v2_1.0_224` (fine-tuned on PlantVillage)
+> **Framework:** HuggingFace Transformers 4.27.3 · PyTorch 1.13.0
+> **HuggingFace Downloads (last month):** ~10,954
 
-### 📊 Performance
+### 📊 Model Performance
+
 | Metric | Value |
 |--------|-------|
 | Accuracy | **95.41%** |
 | Cross Entropy Loss | **0.15** |
 | Dataset | Kaggle — PlantVillage (38 disease classes) |
+| Input Resolution | 224 × 224 px |
 
 ### ⚙️ Training Hyperparameters
+
 | Parameter | Value |
 |-----------|-------|
 | Learning Rate | `5e-5` |
@@ -73,9 +95,23 @@ Farmer → React UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
 | LR Scheduler | Linear with 20% warmup |
 | Epochs | `6` |
 
+### 🔍 Inference Pipeline
+
+The backend's `ModelService` handles the inference lifecycle:
+
+1. **Receive** raw image bytes from the API
+2. **Open & convert** to RGB using `Pillow`
+3. **Preprocess** using `AutoImageProcessor` (resize, normalize to 224×224)
+4. **Run inference** with `torch.no_grad()` for memory efficiency
+5. **Softmax** over logits → top predicted class + confidence score
+6. **Clean** the raw label (e.g., `Tomato___Late_blight` → `Tomato Late Blight`)
+
 ### ⚠️ Intended Use & Limitations
+
 - ✅ **For:** Identifying common crop diseases and assessing plant health
-- ❌ **Not for:** Replacing expert agronomist diagnosis
+- ✅ **For:** Providing preliminary advice paired with local weather context
+- ❌ **Not for:** Replacing expert agronomist or plant pathologist diagnosis
+- ❌ **Not for:** Diseases not covered by the PlantVillage dataset
 
 ### 🧠 Deep Learning Model Architecture
 
@@ -83,41 +119,38 @@ Farmer → React UI → FastAPI Backend ─→ MobileNetV2 (HuggingFace)
 
 ---
 
-## 🚀 Getting Started
+## 💬 AI Advice System (Gemini)
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/tanish9630/Krishi-Scan.git
-cd Krishi-Scan
+Each scan produces structured advice in **3 languages**, generated by Google Gemini using a carefully engineered prompt that incorporates the disease name, confidence score, and live weather data.
+
+### 📋 Advice Format
+
+| Section | Content |
+|---------|---------| 
+| 🔬 Diagnosis Summary | What the disease is + whether current weather makes it worse |
+| 🌿 Organic Control (Desi Way) | 2 natural/traditional remedies (e.g., neem spray, copper sulfate wash) |
+| 💊 Chemical Prescription | One exact Indian commercial product + dosage (e.g., **Mancozeb 75 WP** @ **2g/Litre**) |
+| 💡 Farmer's Pro-Tip | 1 actionable prevention tip for the next crop cycle |
+
+This structure is repeated in **English → Hindi → Gujarati**.
+
+> If the model detects a **healthy plant**, Gemini reassures the farmer and provides maintenance tips instead of treatment.
+
+---
+
+## 🗺️ Location & Weather Pipeline
+
+Krishi Scan uses a **three-tier fallback system** to determine the farmer's location:
+
+```
+1. Browser Geolocation API (native GPS)
+        ↓ (if denied/unavailable)
+2. IP-based lookup via ipwho.is (backend proxy at /api/location)
+        ↓ (if inaccurate)
+3. Manual city input → geocoded via OpenWeatherMap /geo/1.0/direct
 ```
 
-### 2. Set up API keys
-```bash
-cp .env.example .env
-# Edit .env with your keys:
-# GEMINI_API_KEY     → https://aistudio.google.com
-# OPENWEATHER_API_KEY → https://openweathermap.org/api
-```
-
-### 3. Run Locally
-
-**Backend API**
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-**Frontend App**
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-- 🌐 **Frontend** → http://localhost:5173
-- ⚙️ **Backend API** → http://localhost:8000
-- 📖 **API Docs** → http://localhost:8000/docs
+Once coordinates are resolved, the `/api/weather` endpoint fetches real-time temperature, humidity, and weather description to enrich the Gemini prompt.
 
 ---
 
@@ -125,49 +158,230 @@ npm run dev
 
 ```
 Krishi Scan/
-├── .env.example               ← API key template
+├── .env                         ← Your local API keys (git-ignored)
+├── .env.example                 ← API key template
+├── .gitignore
+├── README.md
+├── images/                      ← Architecture & workflow diagrams
+│
 ├── backend/
-│   ├── requirements.txt
-│   ├── main.py                ← FastAPI entrypoint
-│   ├── config.py              ← Settings & env vars
-│   ├── schemas.py             ← Pydantic models
+│   ├── requirements.txt         ← Python dependencies
+│   ├── main.py                  ← FastAPI app + CORS + route registration
+│   ├── config.py                ← Pydantic settings (loads .env)
+│   ├── schemas.py               ← Pydantic request/response models
 │   ├── routers/
-│   │   ├── predict.py         ← POST /api/predict
-│   │   └── weather.py         ← GET /api/weather
+│   │   ├── predict.py           ← POST /api/predict  (image upload → diagnosis)
+│   │   └── weather.py           ← GET  /api/weather  (lat/lon → weather)
 │   └── services/
-│       ├── model_service.py   ← MobileNetV2 inference
-│       ├── weather_service.py ← OpenWeatherMap integration
-│       └── gemini_service.py  ← Trilingual Gemini advice
+│       ├── model_service.py     ← MobileNetV2 image inference (singleton)
+│       ├── weather_service.py   ← OpenWeatherMap HTTP calls
+│       └── gemini_service.py    ← Prompt engineering + Gemini API calls
+│
 └── frontend/
     ├── package.json
+    ├── vite.config.js
+    ├── index.html
+    └── src/
+        ├── main.jsx             ← React entry point
+        ├── App.jsx              ← Main dashboard logic & state
+        ├── App.css              ← Component-scoped styles
+        └── index.css            ← Global styles & design tokens
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python **3.10+**
+- Node.js **18+** and npm
+- A free [Google AI Studio](https://aistudio.google.com) account (for Gemini API key)
+- A free [OpenWeatherMap](https://openweathermap.org/api) account (for weather API key)
+
+---
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/tanish9630/Krishi-Scan.git
+cd Krishi-Scan
+```
+
+---
+
+### 2. Configure API Keys
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and fill in your keys:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+```
+
+| Key | Get it from |
+|-----|-------------|
+| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com) → Create API Key |
+| `OPENWEATHER_API_KEY` | [OpenWeatherMap](https://home.openweathermap.org/api_keys) → Free tier |
+
+---
+
+### 3. Run the Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+> ⚠️ The first startup downloads the MobileNetV2 model weights from HuggingFace (~14 MB). This is cached locally for subsequent runs.
+
+---
+
+### 4. Run the Frontend
+
+Open a **new terminal**:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+### 5. Open the App
+
+| Service | URL |
+|---------|-----|
+| 🌐 Frontend App | http://localhost:5173 |
+| ⚙️ Backend API | http://localhost:8000 |
+| 📖 Interactive API Docs (Swagger) | http://localhost:8000/docs |
+| 📄 ReDoc API Docs | http://localhost:8000/redoc |
+
+---
+
+## 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/predict` | Upload a leaf image → returns disease name, confidence, weather, and AI advice |
+| `GET` | `/api/weather?lat={lat}&lon={lon}` | Fetch current weather for given coordinates |
+| `GET` | `/api/location` | Server-side IP geolocation proxy (via ipwho.is) |
+| `GET` | `/api/geocode?city={city}` | Convert a city name to lat/lon coordinates |
+| `GET` | `/` | Health check → `{"message": "Welcome to Krishi Scan API"}` |
+
+### Example: `/api/predict` Response
+
+```json
+{
+  "disease": "Tomato Late Blight",
+  "confidence": 97.43,
+  "weather": {
+    "city": "Ahmedabad",
+    "temperature": 32.1,
+    "humidity": 68,
+    "description": "haze"
+  },
+  "advice": "## English\n### 🔬 Diagnosis Summary\n..."
+}
 ```
 
 ---
 
 ## 🌾 Supported Crops & Diseases
 
-Powered by the PlantVillage dataset — detects **38 classes** across:
-Apple, Blueberry, Cherry, Corn/Maize, Grape, Orange, Peach, Pepper, Potato, Raspberry, Soybean, Squash, Strawberry, **Tomato**, and more.
+Powered by the **PlantVillage dataset** — detects **38 classes** across:
+
+| Crop | Example Disease Classes |
+|------|------------------------|
+| 🍎 Apple | Apple Scab, Black Rot, Cedar Apple Rust |
+| 🫐 Blueberry | Healthy |
+| 🍒 Cherry | Powdery Mildew |
+| 🌽 Corn / Maize | Common Rust, Gray Leaf Spot, Northern Leaf Blight |
+| 🍇 Grape | Black Rot, Esca, Leaf Blight |
+| 🍊 Orange | Haunglongbing (Citrus Greening) |
+| 🍑 Peach | Bacterial Spot |
+| 🌶️ Pepper | Bacterial Spot |
+| 🥔 Potato | Early Blight, Late Blight |
+| 🫐 Raspberry | Healthy |
+| 🫘 Soybean | Healthy |
+| 🎃 Squash | Powdery Mildew |
+| 🍓 Strawberry | Leaf Scorch |
+| 🍅 Tomato | Early Blight, Late Blight, Leaf Curl, Mosaic Virus, Septoria Leaf Spot, Spider Mites, Target Spot, Yellow Leaf Curl Virus & more |
+
+> ✅ All crops also have a **Healthy** class — so the model can confirm plant health too!
 
 ---
 
-## 📋 AI Advice Format
+## 🔧 Environment Variables Reference
 
-Each scan produces advice in 3 languages, structured as:
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | ✅ Yes | Google Generative AI key for Gemini advice |
+| `OPENWEATHER_API_KEY` | ✅ Yes | OpenWeatherMap key for weather + geocoding |
 
-| Section | Content |
-|---------|---------|
-| 🔬 Diagnosis Summary | Disease description + weather impact |
-| 🌿 Organic Control | 2 natural/desi remedies |
-| 💊 Chemical Prescription | Exact Indian product + dosage |
-| 💡 Farmer's Pro-Tip | 1 prevention tip for next season |
+---
+
+## 📦 Backend Dependencies
+
+```
+fastapi==0.104.1          # Async REST API framework
+uvicorn==0.24.0.post1     # ASGI server
+pydantic + pydantic-settings  # Data validation & settings
+python-multipart==0.0.6   # File upload handling
+python-dotenv==1.0.0      # .env file loading
+transformers==4.35.2      # HuggingFace model loading
+torch + torchvision        # PyTorch inference
+Pillow                    # Image processing
+google-generativeai>=0.5.4  # Gemini API client
+httpx==0.25.2              # Async HTTP requests
+numpy                     # Numerical operations
+```
+
+---
+
+## 🛣️ Roadmap
+
+- [ ] 🐳 Docker Compose setup for one-command deployment
+- [ ] 📱 Progressive Web App (PWA) / offline support
+- [ ] 🗃️ Scan history stored locally (IndexedDB)
+- [ ] 🖼️ Disease visual reference gallery
+- [ ] 📤 Share/export diagnosis as PDF
+- [ ] 🌐 Support for more regional languages (Marathi, Tamil, Telugu)
+- [ ] 📡 Deploy to cloud (Railway / Render / AWS)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m "feat: add my feature"`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
 
 ---
 
 ## 📜 License
 
-MIT License — free to use, modify, and distribute.
+This project is licensed under the **MIT License** — free to use, modify, and distribute. See [LICENSE](LICENSE) for details.
 
 ---
 
-*Built with ❤️ for Indian farmers 🇮🇳*
+## 🙏 Acknowledgements
+
+- [PlantVillage Dataset](https://www.kaggle.com/datasets/emmarex/plantdisease) — for the training data
+- [linkanjarad](https://huggingface.co/linkanjarad) — for the pre-trained MobileNetV2 plant disease model
+- [Google Gemini](https://deepmind.google/technologies/gemini/) — for multilingual AI advice
+- [OpenWeatherMap](https://openweathermap.org/) — for real-time weather data
+
+---
+
+*Built with ❤️ for Indian farmers 🇮🇳 — Jai Kisan!*
